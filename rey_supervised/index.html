@@ -20,16 +20,21 @@
     /* define welcome message trial */
     timeline.push({
       type: "html-keyboard-response",
-      stimulus: "<p>This experiment can only be completed <b>once</b>.<br>" +
-                "Please only continue, if you were explicitly asked to do so.</p>" +
-                "<p class='small'>Press the 'y' key to begin.</p>",
+      stimulus: "<p>Denne testen kan kun utføres <b>én</b> gang<br>" +
+                "Vennligst ikke gå videre før du blir bedt om det.</p>" +
+                "<p class='small'>Trykk «y» på tastaturet for å starte testen.</p>",
+                // "<p>This experiment can only be completed <b>once</b>.<br>" +
+                // "Please only continue, if you were explicitly asked to do so.</p>" +
+                // "<p class='small'>Press the 'y' key to begin.</p>",
       choices: ['y','z']
     });
 
     /* start fullscreen */
     timeline.push({
       type: 'fullscreen',
-      fullscreen_mode: true
+      fullscreen_mode: true,
+      message: "<p>Testen vil vises i fullskjermsmodus når du trykker «Fortsett».</p>",
+      button_label: "Fortsett"
     });
 
     function mm_to_scaled_px(mm) {
@@ -42,8 +47,11 @@
       item_width: 86,
       item_height: 54,
       prompt: 
-        "<p>Click and drag the lower right corner of the box<br>" + 
-        "until the box is the same size as a credit card held up to the screen.</p>",
+        "<p>Klikk og dra i firkantens nedre, høyre hjørne<br>" + 
+        "til firkanten er på størrelse med et kredittkort holdt opp mot skjermen.</p>",
+        // "<p>Click and drag the lower right corner of the box<br>" + 
+        // "until the box is the same size as a credit card held up to the screen.</p>",
+      button_label: "Fortsett",
       pixels_per_unit: 3,
       data: { image_type: 'A' },
     });
@@ -51,45 +59,24 @@
     /* prepare test */
     timeline.push({
       type: "html-keyboard-response",
-      stimulus: "<p>Any image will be shown on the next screen.<br>" + 
-                "You have 5 minutes to draw the image.</p>" +
-                "<p>Press any key to continue.</p>",
+      stimulus: "<p>På neste side vil du bli vist en figur. " + 
+                "Du har 5 minutter på å kopiere den <br> så godt du klarer på arket foran deg.<br>" +
+                "Du kan velge å avslutte før 5 minutter har gått ved å trykke «Jeg er ferdig».</p>" +
+                "<p>Trykk på hvilken som helst knapp på tastaturet for å gå videre.</p>",
+                // "<p>Any image will be shown on the next screen.<br>" + 
+                // "You have 5 minutes to draw the image.</p>" +
+                // "<p>Press any key to continue.</p>",
     });
 
     /* show image */
     timeline.push({
       type: "html-button-response",
       stimulus: 
-        "<p>Draw the image</p>" +
-        `<img style='width: ${mm_to_scaled_px(130)}px;' src='img/input.png'></img>` +
-        '<div class="progress my-3"><div class="progress-bar" role="progressbar" id="progressBar" style="width: 0%"></div></div>',
-      choices: ["I'm already done"],
+        `<img style='width: ${mm_to_scaled_px(110)}px;' src='img/input.png'></img>`,
+      choices: ["Jeg er ferdig"],
       trial_duration: 5 * 60 * 1000,
       on_finish: function(data){
         data.date = (new Date).toISOString();
-      },
-      on_load: () => {
-        const duration_ms = 5 * 60 * 1000;
-        var start_date = new Date();
-        var end_date = new Date();
-        end_date.setMilliseconds(start_date.getMilliseconds() + duration_ms);
-        var width = 1;
-        var id = setInterval(frame, 300);
-        function frame() {
-          if (width >= 100) {
-            clearInterval(id);
-          } else {
-            var now = new Date().getTime();
-            elapsed_ms = now - start_date;
-            width = Math.pow((elapsed_ms / duration_ms), 3) * 100;
-            var elem = document.getElementById("progressBar");
-            if (elem == null) {
-              clearInterval(id);
-              return;
-            }
-            elem.style.width = width + "%";
-          }
-        }
       },
     });
 
