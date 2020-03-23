@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LCBC online study</title>
+    <script src="jspsych.js"></script>
+    <script src="plugins/jspsych-html-button-response.js"></script>
+    <script src="plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="plugins/jspsych-image-button-response.js"></script>
+    <script src="plugins/jspsych-image-keyboard-response.js"></script>
+    <script src="plugins/jspsych-fullscreen.js"></script>
+    <script src="plugins/jspsych-resize.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/jspsych.css">
+  </head>
+  <body>
+    <script>
+    /* create timeline */
+    var timeline = [];
+
+    /* define welcome message trial */
+    timeline.push({
+      type: "html-keyboard-response",
+      stimulus: "<p>Denne testen kan kun utføres <b>én</b> gang<br>" +
+                "Vennligst ikke gå videre før du blir bedt om det.</p>" +
+                "<p class='small'>Trykk «y» på tastaturet for å starte testen.</p>",
+                // "<p>This experiment can only be completed <b>once</b>.<br>" +
+                // "Please only continue, if you were explicitly asked to do so.</p>" +
+                // "<p class='small'>Press the 'y' key to begin.</p>",
+      choices: ['y','z']
+    });
+
+    /* start fullscreen */
+    timeline.push({
+      type: 'fullscreen',
+      fullscreen_mode: true,
+      message: "<p>Testen vil vises i fullskjermsmodus når du trykker «Fortsett».</p>",
+      button_label: "Fortsett"
+    });
+
+    function mm_to_scaled_px(mm) {
+      return 3 * mm;
+    }
+    
+    /* calibrate display size */
+    timeline.push({
+      type: 'resize',
+      item_width: 86,
+      item_height: 54,
+      prompt: 
+        "<p>Klikk og dra i firkantens nedre, høyre hjørne<br>" + 
+        "til firkanten er på størrelse med et kredittkort holdt opp mot skjermen.</p>",
+        // "<p>Click and drag the lower right corner of the box<br>" + 
+        // "until the box is the same size as a credit card held up to the screen.</p>",
+      button_label: "Fortsett",
+      pixels_per_unit: 3,
+      data: { image_type: 'A' },
+    });
+
+
+    /* prepare test */
+    timeline.push({
+      type: "html-keyboard-response",
+      stimulus: "<p>På neste side vil du bli vist en figur. " + 
+                "Du vil få instruksjoner av testleder om hva du skal gjøre.<br>" +
+                " Gå videre når du får beskjed om det.</p>" +
+                "<p>Trykk på hvilken som helst knapp på tastaturet for å gå videre.</p>",
+    });
+
+    /* show image */
+    timeline.push({
+      type: "html-button-response",
+      stimulus: 
+        `<p>Oppgave 1</p>` + 
+        `<div style='max-width: ${mm_to_scaled_px(260)}px; margin: auto'><img style='width: 100%; display=block;' src='img/stroop_betingelse1.jpg'></img></div>`,
+      choices: ["Neste"],
+    });
+    timeline.push({
+      type: "html-button-response",
+      stimulus: 
+        `<p>Oppgave 2</p>` + 
+        `<div style='max-width: ${mm_to_scaled_px(260)}px; margin: auto'><img style='width: 100%; display=block;' src='img/stroop_betingelse2.jpg'></img></div>`,
+      choices: ["Neste"],
+    });
+    timeline.push({
+      type: "html-button-response",
+      stimulus: 
+        `<p>Oppgave 3</p>` + 
+        `<div style='max-width: ${mm_to_scaled_px(260)}px; margin: auto'><img style='width: 100%; display=block;' src='img/stroop_betingelse3.jpg'></img></div>`,
+      choices: ["Neste"],
+    });
+    timeline.push({
+      type: "html-button-response",
+      stimulus: 
+        `<p>Oppgave 4</p>` + 
+        `<div style='max-width: ${mm_to_scaled_px(260)}px; margin: auto'><img style='width: 100%; display=block;' src='img/stroop_betingelse4.jpg'></img></div>`,
+      choices: ["Neste"],
+    });
+
+    /* end fullscreen */
+    timeline.push({
+      type: 'fullscreen',
+      fullscreen_mode: false,
+      on_finish: function(data){
+        data.date = (new Date).toISOString();
+      },
+    });
+
+    /* start the experiment */
+    jsPsych.init({
+      timeline: timeline,
+      on_finish: function(data) {
+        // save in PsyDev Oslo:
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "../../save";
+        const hiddenFieldUrl = document.createElement('input');
+        hiddenFieldUrl.type = 'hidden';
+        hiddenFieldUrl.name = "url";
+        hiddenFieldUrl.value = window.location.pathname;
+        form.appendChild(hiddenFieldUrl);
+        const hiddenFieldResults = document.createElement('input');
+        hiddenFieldResults.type = 'hidden';
+        hiddenFieldResults.name = "results";
+        hiddenFieldResults.value = JSON.stringify(data.json());
+        form.appendChild(hiddenFieldResults);
+        document.body.appendChild(form);
+        form.submit();
+      }
+    });
+  </script>
+  </body>
+</html>
