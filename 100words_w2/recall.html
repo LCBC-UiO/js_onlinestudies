@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LCBC online study</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/lcbc.css">
+  </head>
+  <body>
+    <div class="container mt-5">
+      <p>Skriv inn de  ordene du husker fra ordlisten på forrige side. i så riktig rekkefølge som du klarer.<br>
+        Trykk «Avslutt» når du har skrevet inn de ordene du husker.<br>
+        Dersom du ikke har trykket «Avslutt» før 10 minutter har gått, avsluttes oppgaven automatisk. </p>
+      <hr>
+      <div class="row" id="wlTarget">
+      </div>
+      <div class="row">
+        <div class="col text-center">
+          <button class="btn btn-primary btn-lg entry button my-4" id="btnExit">Avslutt</button>
+        </div>
+      </div>
+
+    <script>
+       function make_http_request(method, url) {
+        return new Promise(function (resolve, reject) {
+          let xhr = new XMLHttpRequest();
+          xhr.open(method, url);
+          xhr.onload = function () {
+            if (this.status >= 200 && this.status < 300) {
+                resolve(xhr.response);
+            } else {
+              reject({
+                status: this.status,
+                statusText: xhr.statusText
+              });
+            }
+          };
+          xhr.onerror = function () {
+            reject({
+              status: this.status,
+              statusText: xhr.statusText
+            });
+          };
+          xhr.send();
+        });
+      }
+
+      async function doStuff() {
+        var wlTarget = document.querySelector('#wlTarget');
+        const wordList_json = JSON.parse(await make_http_request("GET", "list.json"));
+        const items_per_col = Math.ceil(wordList_json.length / 4);
+        var e_col_curr = null;
+        for (var i = 0; i < wordList_json.length; i++) {
+          // new col?
+          if (i % items_per_col == 0) {
+            e_col_curr = document.createElement('div');
+            e_col_curr.classList.add("col-md-3");
+            wlTarget.appendChild(e_col_curr);
+          }
+          e_row = document.createElement('div');
+          e_row.classList.add("row");
+          e_col = document.createElement('div');
+          e_col.classList.add("col");
+          e_col_curr.appendChild(e_row);
+          e_row.appendChild(e_col);
+          e_label = document.createElement('span');
+          e_label.innerHTML = `${i+1}:`;
+          e_label.style.width = "35px";
+          e_label.style.display = "inline-block";
+          e_inp = document.createElement('input');
+          //e_inp.innerHTML = `${i+1}: ${wordList_json[i]}`;
+          e_inp.id = `wlInput-${i+1}`;
+          e_inp.type = "text";
+          e_col.appendChild(e_label);
+          e_col.appendChild(e_inp);
+        }
+
+        const dateStart = (new Date());
+
+        function saveAndExit() {
+          data_json = {
+            date_start: dateStart.toISOString(),
+            date_end:   (new Date()).toISOString(),
+          }
+          data_json['answers'] = [];
+          for (i = 0; i < wordList_json.length; i++) {
+            input = document.getElementById(`wlInput-${i+1}`);
+            data_json['answers'].push({
+              id: i+1,
+              answer: input.value,
+              correct_response: wordList_json[i],
+            });
+          }
+          // save in PsyDev Oslo:
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = "../../save";
+          const hiddenFieldUrl = document.createElement('input');
+          hiddenFieldUrl.type = 'hidden';
+          hiddenFieldUrl.name = "url";
+          hiddenFieldUrl.value = window.location.pathname;
+          form.appendChild(hiddenFieldUrl);
+          const hiddenFieldResults = document.createElement('input');
+          hiddenFieldResults.type = 'hidden';
+          hiddenFieldResults.name = "results";
+          hiddenFieldResults.value = JSON.stringify(data_json);
+          form.appendChild(hiddenFieldResults);
+          document.body.appendChild(form);
+          form.submit();
+        }
+        document.getElementById("btnExit").addEventListener("click", saveAndExit);
+
+        /* auto-complete after 10 min */
+        setInterval(saveAndExit, 10 * 60 * 1000);
+      }
+      doStuff();
+  </script>
+  </body
+</html>

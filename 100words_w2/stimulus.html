@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LCBC online study</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/lcbc.css">
+  </head>
+  <body>
+    <div class="container mt-5">
+      <p>Lær deg så mange ord som mulig i riktig rekkefølge. <br>
+        Etter 5 minutter vil du automatisk få opp en blank liste hvor du skal fylle inn de ordene du husker. </p>
+      <hr>
+      <div class="row" id="wlTarget"></div>
+      <div class="row">
+        <div class="col text-center">
+          <button class="btn btn-primary btn-lg entry button my-4" onclick="location.href='recall.html'">Fortsett</button>
+        </div>
+      </div>
+    </div>
+    <script>
+       function make_http_request(method, url) {
+        return new Promise(function (resolve, reject) {
+          let xhr = new XMLHttpRequest();
+          xhr.open(method, url);
+          xhr.onload = function () {
+            if (this.status >= 200 && this.status < 300) {
+                resolve(xhr.response);
+            } else {
+              reject({
+                status: this.status,
+                statusText: xhr.statusText
+              });
+            }
+          };
+          xhr.onerror = function () {
+            reject({
+              status: this.status,
+              statusText: xhr.statusText
+            });
+          };
+          xhr.send();
+        });
+      }
+
+      async function doStuff() {
+        var wlTarget = document.querySelector('#wlTarget');
+        wordList_json = JSON.parse(await make_http_request("GET", "list.json"));
+        const items_per_col = Math.ceil(wordList_json.length / 4);
+        var e_col_curr = null;
+        for (var i = 0; i < wordList_json.length; i++) {
+          // new col?
+          if (i % items_per_col == 0) {
+            e_col_curr = document.createElement('div');
+            e_col_curr.classList.add("col-md-3");
+            wlTarget.appendChild(e_col_curr);
+          }
+          e_row = document.createElement('div');
+          e_row.classList.add("row");
+          e_col = document.createElement('div');
+          e_col.classList.add("col");
+          e_col_curr.appendChild(e_row);
+          e_row.appendChild(e_col);
+          e_col.innerHTML = `${i+1}: ${wordList_json[i]}`;
+        }
+
+        setInterval(() => location.href='recall.html', 5 * 60 * 1000);
+      }
+      doStuff();
+  </script>
+  </body
+</html>
