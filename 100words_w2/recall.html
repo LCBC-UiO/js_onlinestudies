@@ -78,8 +78,8 @@
 
         function saveAndExit() {
           data_json = {
-            date_start: dateStart.toISOString(),
-            date_end:   (new Date()).toISOString(),
+            date_recall_start: dateStart.toISOString(),
+            date_recall_end:   (new Date()).toISOString(),
           }
           data_json['answers'] = [];
           for (i = 0; i < wordList_json.length; i++) {
@@ -107,8 +107,8 @@
           document.body.appendChild(form);
           form.submit();
         }
+        
         document.getElementById("btnExit").addEventListener("click", saveAndExit);
-
         /* auto-complete after 10 min */
         setInterval(saveAndExit, 10 * 60 * 1000);
       }
