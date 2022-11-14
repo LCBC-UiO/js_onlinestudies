@@ -1,0 +1,3 @@
+[submodule "stroop"]
+	path = stroop
+	url = https://gitlab.pavlovia.org/demos/stroop.git
